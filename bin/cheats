@@ -9,9 +9,14 @@ usage() {
     echo "         -l lists the cheat sheets"
     echo "         -s [term] search the cheat sheets for [arg]"
     echo "         -e [cheat] edit the cheat sheet"
-    echo "         -m mange cheats dir in ranger"
+    echo "         -m mange cheats dir in ranger (if installed)"
+    echo "         arg - display the cheat sheet named arg."{
+    echo "               If arg is not supplied, then fzf is used to pick"
+    echo "               the cheat to displayt (if installed)"
 }
 
+command -v fzf > /dev/null 2>&1 && has_fuzzy=1
+command -v ranger > /dev/null 2>&1 && has_ranger=1
 cheats_home=~/doc/cheats
 cmd=""
 while getopts ":hlsem" opt; do
@@ -48,8 +53,14 @@ case ${cmd} in
         usage
         ;;
     fuzzy_find )
-        cheat=`find $cheats_home -type f  | fzf`
-        cat $cheat
+        if [[ $has_fuzzy == "1" ]] ; then
+            cheat=`find $cheats_home -type f  | fzf`
+            cat $cheat
+        else
+            usage
+            echo ""
+            echo "fuzzy finder (fzf) not installed or not in the path. You must install a cheat to display."
+        fi
         ;;
     find )
         cheat=`find $cheats_home -type f -iname $1`
@@ -82,7 +93,10 @@ case ${cmd} in
         fi
         ;;
     manage_cheats )
-        # todo: what if we don't have ranger?
-        ranger $cheats_home
+        if [[ $has_ranger == "1" ]] ; then
+            ranger $cheats_home
+        else
+            echo "Ranger must be installed to manage sheets."
+        fi
         ;;
 esac
