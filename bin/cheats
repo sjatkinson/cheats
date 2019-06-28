@@ -1,0 +1,88 @@
+#!/bin/sh
+
+usage() {
+    echo "Cheats - a tool to display cheatsheets"
+    echo ""
+    echo "Usage:"
+    echo "     cheats -[hlsecd] [arg]"
+    echo "         -h display this help screen"
+    echo "         -l lists the cheat sheets"
+    echo "         -s [term] search the cheat sheets for [arg]"
+    echo "         -e [cheat] edit the cheat sheet"
+    echo "         -m mange cheats dir in ranger"
+}
+
+cheats_home=~/doc/cheats
+cmd=""
+while getopts ":hlsem" opt; do
+    case ${opt} in
+        h ) cmd=help
+            ;;
+        l ) cmd=list_cheats
+            ;;
+        s ) cmd=search_cheats
+            ;;
+        e ) cmd=edit_cheat
+            ;;
+        m ) cmd=manage_cheats
+            ;;
+        \? )
+            echo "Invalid option: $OPTARG" 1>&2
+            usage
+            exit -1
+            ;;
+    esac
+done
+shift $((OPTIND -1))
+
+if [[ $cmd == "" ]] ; then
+    if [[ $1 == "" ]] ; then
+        cmd=fuzzy_find
+    else
+        cmd=find
+    fi
+fi
+
+case ${cmd} in
+    help )
+        usage
+        ;;
+    fuzzy_find )
+        cheat=`find $cheats_home -type f  | fzf`
+        cat $cheat
+        ;;
+    find )
+        cheat=`find $cheats_home -type f -iname $1`
+        if [[ -f $cheat ]] ; then
+            cat $cheat
+        else
+            echo "$1 does not exist"
+        fi
+        ;;
+    list_cheats )
+        # what would be nice is to list cheats like this
+        # unix
+        #    ln
+        #    find
+        # work
+        #    tpsconv
+        cd $cheats_home && find . -type f 
+        ;;
+    search_cheats )
+        # TODO: support search a specified cheat
+        # or a dir of cheats
+        find $cheats_home -type f | xargs grep -i $1
+        ;;
+    edit_cheat )
+        cheat=`find $cheats_home -type f -iname $1`
+        if [[ -f $cheat ]] ; then
+            $EDITOR $cheat
+        else
+            echo "$1 does not exist"
+        fi
+        ;;
+    manage_cheats )
+        # todo: what if we don't have ranger?
+        ranger $cheats_home
+        ;;
+esac
