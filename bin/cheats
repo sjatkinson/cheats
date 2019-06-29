@@ -15,8 +15,8 @@ usage() {
     echo "               the cheat to displayt (if installed)"
 }
 
-command -v fzf > /dev/null 2>&1 && has_fuzzy=1
-command -v ranger > /dev/null 2>&1 && has_ranger=1
+type fzf > /dev/null 2>&1 && has_fuzzy=1
+type ranger > /dev/null 2>&1 && has_ranger=1
 cheats_home=~/doc/cheats
 cmd=""
 while getopts ":hlsem" opt; do
@@ -40,8 +40,8 @@ while getopts ":hlsem" opt; do
 done
 shift $((OPTIND -1))
 
-if [[ $cmd == "" ]] ; then
-    if [[ $1 == "" ]] ; then
+if [ "$cmd" = "" ] ; then
+    if [ "$1" = "" ] ; then
         cmd=fuzzy_find
     else
         cmd=find
@@ -53,7 +53,7 @@ case ${cmd} in
         usage
         ;;
     fuzzy_find )
-        if [[ $has_fuzzy == "1" ]] ; then
+        if [ $has_fuzzy = "1" ] ; then
             cheat=`find $cheats_home -type f  | fzf`
             cat $cheat
         else
@@ -64,7 +64,7 @@ case ${cmd} in
         ;;
     find )
         cheat=`find $cheats_home -type f -iname $1`
-        if [[ -f $cheat ]] ; then
+        if [ -f $cheat ] ; then
             cat $cheat
         else
             echo "$1 does not exist"
@@ -86,17 +86,22 @@ case ${cmd} in
         ;;
     edit_cheat )
         cheat=`find $cheats_home -type f -iname $1`
-        if [[ -f $cheat ]] ; then
-            $EDITOR $cheat
+        if [ -f $cheat ] ; then
+            if [ $EDITOR ] ; then
+                $EDITOR $cheat
+            else
+                vim $cheat
+            fi
         else
             echo "$1 does not exist"
         fi
         ;;
     manage_cheats )
-        if [[ $has_ranger == "1" ]] ; then
+        if [ "$has_ranger" = "1" ] ; then
             ranger $cheats_home
         else
             echo "Ranger must be installed to manage sheets."
         fi
         ;;
 esac
+
