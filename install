@@ -1,3 +1,12 @@
-# TODO: support src being in different locations
-# TODO: support target beinng in different locations
-ln -s ~/src/cheats/bin/cheats ~/bin/cheats
+#!/usr/bin/env sh
+set -e 
+INSTALL_DIR="${XDG_BIN_HOME:-$HOME/.local/bin}"
+SCRIPT="$0"
+if [ -L "$SCRIPT" ] ; then
+    SCRIPT="$(readline "$SCRIPT")"
+fi
+SCRIPT_DIR="$(cd "$(dirname "$SCRIPT")" && pwd)"
+SRC=$SCRIPT_DIR/bin/cheats
+mkdir -p $INSTALL_DIR
+set -x
+ln -sf "$SRC" "$INSTALL_DIR/cheats"
