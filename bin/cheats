@@ -18,7 +18,6 @@ usage() {
 type fzf > /dev/null 2>&1 && has_fuzzy=1
 type ranger > /dev/null 2>&1 && has_ranger=1
 DATA_HOME="${XDG_DATA_HOME:=~/.local/share}/cheats"
-echo $DATA_HOME
 mkdir -p "$DATA_HOME"
 cmd=""
 while getopts ":hlsem" opt; do
