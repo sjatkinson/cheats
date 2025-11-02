@@ -17,7 +17,9 @@ usage() {
 
 type fzf > /dev/null 2>&1 && has_fuzzy=1
 type ranger > /dev/null 2>&1 && has_ranger=1
-cheats_home=~/doc/cheats
+DATA_HOME="${XDG_DATA_HOME:=~/.local/share}/cheats"
+echo $DATA_HOME
+mkdir -p "$DATA_HOME"
 cmd=""
 while getopts ":hlsem" opt; do
     case ${opt} in
@@ -54,7 +56,7 @@ case ${cmd} in
         ;;
     fuzzy_find )
         if [ $has_fuzzy = "1" ] ; then
-            cheat=`find $cheats_home -type f  | fzf`
+            cheat=`find $DATA_HOME -type f  | fzf`
             cat $cheat
         else
             usage
@@ -63,7 +65,7 @@ case ${cmd} in
         fi
         ;;
     find )
-        cheat=`find $cheats_home -type f -iname $1`
+        cheat=`find $DATA_HOME -type f -iname $1`
         if [ -f $cheat ] ; then
             cat $cheat
         else
@@ -77,15 +79,15 @@ case ${cmd} in
         #    find
         # work
         #    tpsconv
-        cd $cheats_home && find . -type f 
+        cd $DATA_HOME && find . -type f 
         ;;
     search_cheats )
         # TODO: support search a specified cheat
         # or a dir of cheats
-        find $cheats_home -type f | xargs grep -i $1
+        find $DATA_HOME -type f | xargs grep -i $1
         ;;
     edit_cheat )
-        cheat=`find $cheats_home -type f -iname $1`
+        cheat=`find $DATA_HOME -type f -iname $1`
         if [ -f $cheat ] ; then
             if [ $EDITOR ] ; then
                 $EDITOR $cheat
@@ -98,7 +100,7 @@ case ${cmd} in
         ;;
     manage_cheats )
         if [ "$has_ranger" = "1" ] ; then
-            ranger $cheats_home
+            ranger $DATA_HOME
         else
             echo "Ranger must be installed to manage sheets."
         fi
